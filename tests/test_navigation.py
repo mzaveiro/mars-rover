@@ -4,13 +4,15 @@ import pytest
 
 import rover.navigation
 import rover.cardinal as cardinal
-import rover.expections as expections
+import rover.exceptions as exceptions
 
 
 @pytest.fixture
 def navigation():
     '''Fixture helper that instantiate Navigation'''
-    return rover.navigation.Navigation()
+    new_nav = rover.navigation.Navigation()
+    new_nav.set_boundaries((5, 5))
+    return new_nav
 
 
 def test_set_cardinal_points(navigation):
@@ -133,7 +135,6 @@ def test_move(navigation, position, orientation, expect):
     nav = navigation
     nav.set_position(position)
     nav.set_initial_orientation(orientation)
-    nav.set_boundaries((5, 5))
     nav.move()
     assert nav.location.position == expect
 
@@ -153,8 +154,7 @@ def test_invalid_moves(navigation, position, orientation):
     nav = navigation
     nav.set_position(position)
     nav.set_initial_orientation(orientation)
-    nav.set_boundaries((5, 5))
-    with pytest.raises(expections.BoundaryError):
+    with pytest.raises(exceptions.BoundaryError):
         nav.move()
 
 
@@ -166,7 +166,6 @@ def test_invalid_moves(navigation, position, orientation):
 def test_process_cmd(navigation, mocker, func, cmd):
     """Test calling all available commands"""
     nav = navigation
-    nav.set_boundaries((1, 1))
     spy = mocker.spy(nav, func)
     nav.process_cmd(cmd)
     spy.assert_called_once()
@@ -175,5 +174,5 @@ def test_process_cmd(navigation, mocker, func, cmd):
 def test_invalid_cmd(navigation):
     """Test one invalid command"""
     nav = navigation
-    with pytest.raises(expections.InvalidCommand):
+    with pytest.raises(exceptions.InvalidCommand):
         nav.process_cmd("E")

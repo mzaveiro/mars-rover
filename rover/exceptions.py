@@ -9,3 +9,13 @@ class BoundaryError(Exception):
 class InvalidCommand(Exception):
     """Invalid commands sent"""
     pass
+
+
+class InvalidCardinalPoint(Exception):
+    """Invalid cardinal point"""
+    pass
+
+
+class InvalidBoundary(Exception):
+    """Invalid boundary"""
+    pass

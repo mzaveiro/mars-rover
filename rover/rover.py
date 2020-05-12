@@ -6,6 +6,7 @@ and the rover's internal navigation system.
 import logging
 import pathlib
 
+from . import exceptions as exp
 from . import navigation
 
 
@@ -51,7 +52,11 @@ class Rover:
         # break the commands into a list
         cmds = list(commands)
         for cmd in cmds:
-            self.navigation.process_cmd(cmd)
+            try:
+                self.navigation.process_cmd(cmd)
+            except (exp.BoundaryError, exp.InvalidCommand) as err:
+                logging.exception(err)
+                continue
             self.logger.info(self.navigation.location)
 
         return str(self.navigation.location)

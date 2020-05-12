@@ -23,11 +23,12 @@ import pathlib
 
 from . import cardinal
 from . import location_storage
-from . import expections
+from . import exceptions
 
 
 class Navigation():
     '''Controls the hover navigation system'''
+    cardinal_points = ("N", "S", "E", "W")
 
     def __init__(self):
         self.head = None
@@ -93,6 +94,9 @@ class Navigation():
         :type orientation: str
         '''
 
+        if orientation not in self.cardinal_points:
+            raise exceptions.InvalidCardinalPoint("Invalid cardinal point")
+
         self.logger.debug("head: %s", self.head)
         # set current to the head of the list (first cardinal point)
         current_orientation = self.head
@@ -118,6 +122,12 @@ class Navigation():
         :param new_position: The desired position we want to set
         :type new_position: tuple
         '''
+        boundary = self.location.boundaries
+        x_min, y_min = self.location.lower_boundary
+        x_max, y_max = boundary
+        x, y = new_position
+        if not(x_min <= x <= x_max and y_min <= y <= y_max):
+            raise exceptions.BoundaryError("Outside of boundaries")
         self.location.position = new_position
 
     def set_boundaries(self, new_boundaries):
@@ -126,6 +136,9 @@ class Navigation():
         :param new_boundaries: The desired boundary we want to set
         :type new_boundaries: tuple
         '''
+        x, y = new_boundaries
+        if x < 0 or y < 0:
+            raise exceptions.InvalidBoundary("Boundary cannot be negative")
         self.location.boundaries = new_boundaries
 
     def move_left(self):
@@ -156,16 +169,11 @@ class Navigation():
         '''Move the rover'''
 
         position = self.location.position
-        boundary = self.location.boundaries
         orientation = self.location.orientation
         new_position = orientation.move(position)
         self.logger.info("move to %s", new_position)
-        x_min, y_min = self.location.lower_boundary
-        x_max, y_max = boundary
-        x, y = new_position
-        if not(x_min <= x <= x_max and y_min <= y <= y_max):
-            raise expections.BoundaryError("Outside of boundaries")
 
+        # try to set the new position
         self.set_position(new_position)
 
     def process_cmd(self, command):
@@ -177,4 +185,4 @@ class Navigation():
         elif command == 'M':
             self.move()
         else:
-            raise expections.InvalidCommand("Invalid command")
+            raise exceptions.InvalidCommand("Invalid command")
