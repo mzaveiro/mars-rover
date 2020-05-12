@@ -7,8 +7,10 @@ rover orientation.
 
 class LocationStorage:
     '''Holds the rover's run-time data'''
+    lower_boundary = (0, 0)
+
     def __init__(self):
-        self._position = (0, 0)
+        self._position = self.lower_boundary
         self._boundaries = (0, 0)
         self._orientation = None
 

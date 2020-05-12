@@ -6,7 +6,7 @@ Each module has it's own function that process what's the new coordinate
 position in case a move command is fired. It also contains the idea of what's
 the left and right cardinal point in relation to itself.
 
-N <--> E <--> W <--> S
+N <--> E <--> S <--> W
 
 So, if you are pointing at E cardinal position, on your left is North and on
 your right is South. This information is not hard-coded here, take a look at
