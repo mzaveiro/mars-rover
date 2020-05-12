@@ -1,4 +1,6 @@
-'''Module that holds the 4 cardinal points
+'''Cardinal
+
+Module that holds the 4 cardinal points
 
 Each module has it's own function that process what's the new coordinate
 position in case a move command is fired. It also contains the idea of what's
@@ -18,9 +20,8 @@ exception occurs as the trace event will tell the class name.
 import abc
 
 
-class CardinalPoints():
+class CardinalPoints(abc.ABC):
     '''Abstract class that provides interface for the cardinal points'''
-    __metaclass__ = abc.ABCMeta
     short_name = ""
     long_name = ""
 
