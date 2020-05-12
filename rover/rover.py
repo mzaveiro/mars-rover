@@ -1,45 +1,5 @@
 #!/usr/bin/env python
-import abc
-
-
-class Orientation():
-    __metaclass__ = abc.ABCMeta
-
-    def __init__(self, data):
-        self.right = None
-        self.left = None
-        self.data = data
-
-    def __str__(self):
-        return self.data
-
-    @abc.abstractmethod
-    def move(self, position):
-        """Implement move on the children classes"""
-
-
-class North(Orientation):
-    def move(self, position):
-        x, y = position
-        return x, y+1
-
-
-class South(Orientation):
-    def move(self, position):
-        x, y = position
-        return x, y-1
-
-
-class East(Orientation):
-    def move(self, position):
-        x, y = position
-        return x+1, y
-
-
-class West(Orientation):
-    def move(self, position):
-        x, y = position
-        return x-1, y
+import cardinal
 
 
 class Navigation():
@@ -47,6 +7,7 @@ class Navigation():
         self.head = None
         self.tail = None
         self.location = LocationStorage()
+        self.set_cardinal_points()
 
     def __str__(self):
         last = self.head
@@ -55,6 +16,17 @@ class Navigation():
             last = last.right
             all_nodes.append(str(last))
         return " ".join(all_nodes)
+
+    def set_cardinal_points(self):
+        orientation_guide = (
+            cardinal.North(),
+            cardinal.East(),
+            cardinal.South(),
+            cardinal.West()
+        )
+
+        for cardinal_point in orientation_guide:
+            self.add(cardinal_point)
 
     def add(self, node):
         #  print(node)
@@ -72,7 +44,7 @@ class Navigation():
         current_orientation = self.head
         print(f"head: {self.head}")
         while current_orientation.right:
-            if current_orientation.data == orientation:
+            if current_orientation.short_name == orientation:
                 break
             current_orientation = current_orientation.right
         self.location.orientation = current_orientation
@@ -156,12 +128,6 @@ class Rover:
     def __init__(self):
         self.navigation = Navigation()
 
-    def set_orientation(self):
-        orientation_guide = (North("N"), East("E"), South("S"), West("W"))
-
-        for position in orientation_guide:
-            self.navigation.add(position)
-
     def set_boundaries(self, x, y):
         self.navigation.set_boundaries((x, y))
 
@@ -179,7 +145,6 @@ class Rover:
 
 if __name__ == "__main__":
     rover = Rover()
-    rover.set_orientation()
     #  print(rover.orientation)
     rover.set_boundaries(5, 5)
 
