@@ -8,9 +8,35 @@ import argparse
 import logging
 import logging.config
 import logging.handlers
+import pathlib
 import sys
 
-import rover.rover as mars_rover
+import rover.control as controller
+
+
+def get_next_line(filename):
+    '''Opens a file in read mode and yield all lines, one at a time.
+
+    :param filename: The name of the file
+    :type filename: str
+
+    :yields: each line of the file
+    '''
+    with open(filename, "r") as cmd_file:
+        yield from cmd_file
+
+
+def process_from_file(filename):
+    '''Process commands from a file'''
+    file = pathlib.Path(filename)
+    if not file.is_file():
+        logger = logging.getLogger("process_from_file")
+        logger.warning("File %s not found, please check the path", filename)
+        return
+
+    rover_control = controller.Control()
+    for line in get_next_line(filename):
+        rover_control.process(line.strip())
 
 
 def main():
@@ -27,8 +53,9 @@ def main():
     logging_names = logging_name_map.keys()
 
     parser.set_defaults(
-        log_level="info",
+        log_level="warn",
         log_file="/tmp/rover.log",
+        cmd_file="cmds_exemple.txt"
     )
     parser.add_argument(
         "--log-level",
@@ -43,8 +70,15 @@ def main():
         "--log-file",
         dest="log_file",
         metavar="FILE",
-        choices=sorted(logging_names),
         help=("File to log to."
+              "Default: %(default)s")
+    )
+    parser.add_argument(
+        "-f",
+        "--file",
+        dest="cmd_file",
+        metavar="FILE",
+        help=("File with commands to process"
               "Default: %(default)s")
     )
     options = parser.parse_args(argv)
@@ -57,15 +91,19 @@ def main():
         "formatters": {
             "standard": {
                 "format":
-                "%(asctime)s [%(levelname)5.5s] - %(name)s: %(message)s",
+                "%(asctime)s [%(levelname)7.7s] - %(name)s: %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S"
+            },
+            "terminal": {
+                "format":
+                "[%(levelname)7.7s] %(name)s: %(message)s",
             },
         },
         "handlers": {
             "stream": {
                 "class": "logging.StreamHandler",
                 "level": "DEBUG",
-                "formatter": "standard"
+                "formatter": "terminal"
             },
             "file": {
                 "class": "logging.handlers.RotatingFileHandler",
@@ -86,17 +124,9 @@ def main():
 
     })
 
-    mainlog = logging.getLogger("")
+    mainlog = logging.getLogger("rover_control")
     mainlog.info("start rover!")
-
-    rover = mars_rover.Rover()
-    rover.set_boundaries(5, 5)
-
-    rover.set_inital_position(1, 2, 'N')
-    rover.navigate('LMLMLMLMM')
-
-    rover.set_inital_position(3, 3, 'E')
-    rover.navigate('MMRMMRMRRM')
+    process_from_file(options.cmd_file)
 
 
 if __name__ == "__main__":
