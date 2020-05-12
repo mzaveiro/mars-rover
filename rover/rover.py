@@ -37,7 +37,7 @@ class Rover:
         :type orientation: str
         '''
         self.navigation.set_position((x, y))
-        self.navigation.set_inital_orientation(orientation)
+        self.navigation.set_initial_orientation(orientation)
 
     def navigate(self, commands):
         '''Navigate the rover according to a list of commands

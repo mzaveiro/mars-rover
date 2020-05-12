@@ -23,6 +23,7 @@ import pathlib
 
 from . import cardinal
 from . import location_storage
+from . import expections
 
 
 class Navigation():
@@ -55,6 +56,8 @@ class Navigation():
 
         for cardinal_point in orientation_guide:
             self.add_cardinal_point(cardinal_point)
+        # initiate the orientation
+        self.location.orientation = self.head
 
     def add_cardinal_point(self, node):
         '''Add a cardinal point
@@ -80,7 +83,7 @@ class Navigation():
         # no further elements after the tail
         self.tail.right = None
 
-    def set_inital_orientation(self, orientation):
+    def set_initial_orientation(self, orientation):
         '''Initiate the orientation list
 
         Here the set the rover to face to the given direction by starting at
@@ -98,8 +101,16 @@ class Navigation():
             if current_orientation.short_name == orientation:
                 break
             current_orientation = current_orientation.right
-        self.location.orientation = current_orientation
+        self.set_orientation(current_orientation)
         self.logger.debug("initial orientation: %s", self.location.orientation)
+
+    def set_orientation(self, new_orientation):
+        '''Set the rover's orientation
+
+        :param new_orientation: The desired orientation we want to set
+        :type new_orientation: tuple
+        '''
+        self.location.orientation = new_orientation
 
     def set_position(self, new_position):
         '''Set the rover's position
@@ -126,7 +137,7 @@ class Navigation():
         # if reached the limit to the left (first cardinal point of the list),
         # reset to tail (last cardinal point)
         new_orientation = self.tail if current.left is None else current.left
-        self.location.orientation = new_orientation
+        self.set_orientation(new_orientation)
         self.logger.info("to the left, now %s", self.location.orientation)
 
     def move_right(self):
@@ -138,7 +149,7 @@ class Navigation():
         # if reached the limit to the right (last cardinal point of the list),
         # reset to head (first cardinal point)
         new_orientation = self.head if current.right is None else current.right
-        self.location.orientation = new_orientation
+        self.set_orientation(new_orientation)
         self.logger.info("to the right, now %s", self.location.orientation)
 
     def move(self):
@@ -149,8 +160,11 @@ class Navigation():
         orientation = self.location.orientation
         new_position = orientation.move(position)
         self.logger.info("move to %s", new_position)
-        if boundary < new_position < self.location.lower_boundary:
-            raise Exception("Outside of boundaries")
+        x_min, y_min = self.location.lower_boundary
+        x_max, y_max = boundary
+        x, y = new_position
+        if not(x_min <= x <= x_max and y_min <= y <= y_max):
+            raise expections.BoundaryError("Outside of boundaries")
 
         self.set_position(new_position)
 
@@ -162,3 +176,5 @@ class Navigation():
             self.move_right()
         elif command == 'M':
             self.move()
+        else:
+            raise expections.InvalidCommand("Invalid command")
