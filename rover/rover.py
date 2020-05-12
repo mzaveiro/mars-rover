@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 import cardinal
+import location_storage
 
 
 class Navigation():
     def __init__(self):
         self.head = None
         self.tail = None
-        self.location = LocationStorage()
+        self.location = location_storage.LocationStorage()
         self.set_cardinal_points()
 
     def __str__(self):
@@ -87,41 +88,6 @@ class Navigation():
             self.move_right()
         elif command == 'M':
             self.move()
-
-
-class LocationStorage:
-    def __init__(self):
-        self._position = (0, 0)
-        self._boundaries = (0, 0)
-        self._orientation = None
-
-    def __str__(self):
-        x, y = self.position
-        return f"{x} {y} {self.orientation}"
-
-    @property
-    def position(self):
-        return self._position
-
-    @position.setter
-    def position(self, new_position):
-        self._position = new_position
-
-    @property
-    def boundaries(self):
-        return self._boundaries
-
-    @boundaries.setter
-    def boundaries(self, new_boundaries):
-        self._boundaries = new_boundaries
-
-    @property
-    def orientation(self):
-        return self._orientation
-
-    @orientation.setter
-    def orientation(self, new_orientation):
-        self._orientation = new_orientation
 
 
 class Rover:
