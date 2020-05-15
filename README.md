@@ -39,17 +39,17 @@ python -m pytest -v -s
 
 The app is made of 3 parts:
 
-1. `hover_control`: script that interacts with the user.
+1. `rover_control`: script that interacts with the user.
 2. `rover.control`: parses the cmds from string to something meaningful and
 takes care of the command sequence.
 3. `rover.rover`: encapsulates the rover's functionalities together with a few
 other modules.
 
-The idea is that you can have more than one hover at the same time if you want,
-or swap `rover.control` to a web server and modify `hover_control` to send REST
+The idea is that you can have more than one rover at the same time if you want,
+or swap `rover.control` to a web server and modify `rover_control` to send REST
 requests.
 
-The hover itself comprises `Rover` class that acts as an interface from the
+The rover itself comprises `Rover` class that acts as an interface from the
 controller to the `Navigation`. That in turn takes care of the rover's allowed
 movements and stores its runtime information in `LocationStorage`.
 
